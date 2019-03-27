@@ -9,6 +9,6 @@ Terrible XML API but yet, gets the job done...
 Shout out to the CORS issue workaround [CORS Anywhere](https://github.com/Rob--W/cors-anywhere/)
 Whole API link in code `https://cors-anywhere.herokuapp.com/http://www.nbrm.mk/services/ExchangeRates.asmx/GetEXRates`
 
-## `npm start`
-Runs the app in the development mode.<br>
+## Running the app
+`npm start` - Runs the app in the development mode.<br>
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
