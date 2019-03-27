@@ -29,7 +29,6 @@ class KursnaLista extends React.Component {
             .then(
                 (result) => {
                     var xml = JSON.parse(convert.xml2json(result, {compact: true, spaces: 2, nativeType: true, nativeTypeAttributes: true, trim: true, textKey: "text"}));
-                    console.log(xml);
 
                     this.setState({
                         isLoaded: true,
