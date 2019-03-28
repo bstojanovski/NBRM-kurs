@@ -1,26 +1,32 @@
 import React from 'react';
-import Kurs from './kurs.js';
+import ExchangeRate from './ExchangeRate';
+import SelectDate from './SelectDate';
 var convert = require('xml-js');
 
-class KursnaLista extends React.Component {
+class ExchangeRatesList extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            startDate: "27.03.2019",
-            endDate: "27.03.2019",
+            startDate: null,
+            endDate: null,
             error: null,
             isLoaded: false,
             items: []
         };
+        this.readData = this.readData.bind(this);
     }
 
-    componentDidMount() {
-        var params = 'startDate='+this.state.startDate+'&endDate='+this.state.startDate+'&isStateAuth=1';
+    readData(date) {
+        var params = 'startDate='+date+'&endDate='+date+'&isStateAuth=1';
+        this.setState({
+            startDate: date,
+            endDate: date,
+            isLoaded: false
+        });
 
         fetch('https://cors-anywhere.herokuapp.com/http://www.nbrm.mk/services/ExchangeRates.asmx/GetEXRates', {
                 method: 'POST',
                 headers: {
-                    'Origin': 'http://www.nbrm.mk',
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
                 body: params
@@ -42,6 +48,15 @@ class KursnaLista extends React.Component {
                     });
                 }
             )
+        this.forceUpdate();
+    }
+
+    componentDidMount() {
+        // Today's date
+        let date = new Date();
+        let formatted_date = ("0" + date.getDate()).slice(-2) + "." + ("0" + (date.getMonth()+1)).slice(-2) + "." + date.getFullYear();
+
+        this.readData(formatted_date);
     }
 
     render() {
@@ -53,14 +68,17 @@ class KursnaLista extends React.Component {
             return <div>Loading...</div>;
         } else {
             return (
-                <ul>
-                    {items.map(item => (
-                        <Kurs key={item.Valuta.text} currency={item.Oznaka.text} middleValue={item.Sreden.text} />
-                    ))}
-                </ul>
+                <div>
+                    <SelectDate onChange={this.readData} />
+                    <ul>
+                        {items.map(item => (
+                            <ExchangeRate key={item.Valuta.text} currency={item.Oznaka.text} middleValue={item.Sreden.text} />
+                        ))}
+                    </ul>
+                </div>
             );
         }
     }
 }
 
-export default KursnaLista;
+export default ExchangeRatesList;

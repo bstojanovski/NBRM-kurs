@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import './App.css';
-import KursnaLista from './components/kursnalista.js';
+import ExchangeRatesList from './components/ExchangeRateList';
 
 class App extends Component {
   render() {
     return (
       <div className="App">
         <header className="App-header">
-          <KursnaLista />
+          <ExchangeRatesList />
         </header>
       </div>
     );

@@ -1,6 +1,6 @@
 import React from 'react';
 
-class Kurs extends React.Component {
+class ExchangeRate extends React.Component {
     constructor(props) {
         super(props);
 
@@ -19,4 +19,4 @@ class Kurs extends React.Component {
     }
 }
 
-export default Kurs;
+export default ExchangeRate;
