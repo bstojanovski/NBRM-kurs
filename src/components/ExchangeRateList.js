@@ -1,6 +1,7 @@
 import React from 'react';
 import ExchangeRate from './ExchangeRate';
 import SelectDate from './SelectDate';
+import moment from 'moment';
 var convert = require('xml-js');
 
 class ExchangeRatesList extends React.Component {
@@ -17,7 +18,10 @@ class ExchangeRatesList extends React.Component {
     }
 
     readData(date) {
-        var params = 'startDate='+date+'&endDate='+date+'&isStateAuth=1';
+        // Format date for API
+        let formatted_date = moment(date).format('DD.MM.YYYY');
+        var params = 'startDate='+formatted_date+'&endDate='+formatted_date+'&isStateAuth=1';
+
         this.setState({
             startDate: date,
             endDate: date,
@@ -25,38 +29,34 @@ class ExchangeRatesList extends React.Component {
         });
 
         fetch('https://cors-anywhere.herokuapp.com/http://www.nbrm.mk/services/ExchangeRates.asmx/GetEXRates', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: params
-            })
-            .then(res => res.text())
-            .then(
-                (result) => {
-                    var xml = JSON.parse(convert.xml2json(result, {compact: true, spaces: 2, nativeType: true, nativeTypeAttributes: true, trim: true, textKey: "text"}));
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params
+        })
+        .then(res => res.text())
+        .then(
+            (result) => {
+                var xml = JSON.parse(convert.xml2json(result, {compact: true, spaces: 2, nativeType: true, nativeTypeAttributes: true, trim: true, textKey: "text"}));
 
-                    this.setState({
-                        isLoaded: true,
-                        items: xml.ArrayOfExchangeRatesByDay.ExchangeRatesByDay.ExchangeRates.ExchangeRateStateAuthoritiesModel
-                    });
-                },
-                (error) => {
-                    this.setState({
-                        isLoaded: true,
-                        error
-                    });
-                }
-            )
-        this.forceUpdate();
+                this.setState({
+                    isLoaded: true,
+                    items: xml.ArrayOfExchangeRatesByDay.ExchangeRatesByDay.ExchangeRates.ExchangeRateStateAuthoritiesModel
+                });
+            },
+            (error) => {
+                this.setState({
+                    isLoaded: true,
+                    error
+                });
+            }
+        )
     }
 
     componentDidMount() {
-        // Today's date
-        let date = new Date();
-        let formatted_date = ("0" + date.getDate()).slice(-2) + "." + ("0" + (date.getMonth()+1)).slice(-2) + "." + date.getFullYear();
-
-        this.readData(formatted_date);
+        // Get data initially for today
+        this.readData(new Date());
     }
 
     render() {
@@ -69,7 +69,7 @@ class ExchangeRatesList extends React.Component {
         } else {
             return (
                 <div>
-                    <SelectDate onChange={this.readData} />
+                    <SelectDate selectedDate={this.state.startDate} readData={this.readData} />
                     <ul>
                         {items.map(item => (
                             <ExchangeRate key={item.Valuta.text} currency={item.Oznaka.text} middleValue={item.Sreden.text} />
