@@ -1,4 +1,8 @@
 body {
+  background-color: #282c34;
+  text-align: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
   margin: 0;
   padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
@@ -11,4 +15,31 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+}
+
+img {
+  max-width: 100%;
+}
+
+.chart {
+  width: 400px;
+  height: 300px;
+  background-color: #fff;
+  padding: 32px;
+  margin-top: 32px;
+}
+
+@media screen and (max-width: 480px) {
+  .App .react-datepicker-wrapper {
+    display: block;
+  }
+
+  .App ul {
+    padding: 0;
+  }
+
+  .chart {
+    width: 100%;
+    padding: 16px 0;
+  }
 }
