@@ -62,8 +62,6 @@ class ExchangeRatesList extends React.Component {
                             data.push(dataItem);
                             currency['data'] = data;
                             currencies.push(currency);
-
-                            console.log(currencies);
                         });
                         
                         // Filter out array
@@ -122,7 +120,7 @@ class ExchangeRatesList extends React.Component {
             if(this.state.isRange === false) {
                 return (
                     <div>
-                        <SelectDate startDate={this.state.startDate} endDate={this.state.endDate} readData={this.readData} />
+                        <SelectDate startDate={this.state.startDate} endDate={this.state.endDate} readData={this.readData} /><br/>
                         <ul>
                             {items.map(item => (
                                 <ExchangeRate key={item.Valuta.text} currency={item.Oznaka.text} middleValue={item.Sreden.text} />
@@ -133,7 +131,7 @@ class ExchangeRatesList extends React.Component {
             } else {
                 return (
                     <div>
-                        <SelectDate startDate={this.state.startDate} endDate={this.state.endDate} readData={this.readData} />
+                        <SelectDate startDate={this.state.startDate} endDate={this.state.endDate} readData={this.readData} /><br/>
                         <CurrencyGraph graphData={this.state.items} />
                     </div>
                 );

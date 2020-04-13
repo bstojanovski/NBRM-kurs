@@ -22,6 +22,7 @@ img {
 }
 
 .chart {
+  display: inline-block;
   width: 400px;
   height: 300px;
   background-color: #fff;
