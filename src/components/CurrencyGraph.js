@@ -17,8 +17,8 @@ class CurrencyGraph extends React.Component {
 
     render() {
         return (
-            <div class="chart">
-                <Chart data={this.state.data} axes={this.state.axes} tooltip />
+            <div className="chart">
+                <Chart data={this.state.data} axes={this.state.axes} tooltip dark />
             </div>
         )
     }

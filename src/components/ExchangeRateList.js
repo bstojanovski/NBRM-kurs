@@ -57,7 +57,7 @@ class ExchangeRatesList extends React.Component {
 
                             currency['label'] = element['Oznaka'].text;
                             dataItem[0] = new Date(currencyDate);
-                            dataItem[1] = parseFloat(element['Sreden'].text);
+                            dataItem[1] = element['Sreden'].text;
 
                             data.push(dataItem);
                             currency['data'] = data;
