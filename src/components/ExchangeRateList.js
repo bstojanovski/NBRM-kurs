@@ -1,6 +1,7 @@
 import React from 'react';
 import ExchangeRate from './ExchangeRate';
 import SelectDate from './SelectDate';
+import CurrencyGraph from './CurrencyGraph';
 import moment from 'moment';
 var convert = require('xml-js');
 
@@ -17,14 +18,15 @@ class ExchangeRatesList extends React.Component {
         this.readData = this.readData.bind(this);
     }
 
-    readData(date) {
+    readData(startDate, endDate) {
         // Format date for API
-        let formatted_date = moment(date).format('DD.MM.YYYY');
-        var params = 'startDate='+formatted_date+'&endDate='+formatted_date+'&isStateAuth=1';
+        var formattedStartDate = moment(startDate).format('DD.MM.YYYY');
+        var formattedEndDate = moment(endDate).format('DD.MM.YYYY');
+        var params = 'startDate='+formattedStartDate+'&endDate='+formattedEndDate+'&isStateAuth=1';
 
         this.setState({
-            startDate: date,
-            endDate: date,
+            startDate: startDate,
+            endDate: endDate,
             isLoaded: false
         });
 
@@ -39,10 +41,60 @@ class ExchangeRatesList extends React.Component {
         .then(
             (result) => {
                 var xml = JSON.parse(convert.xml2json(result, {compact: true, spaces: 2, nativeType: true, nativeTypeAttributes: true, trim: true, textKey: "text"}));
+                let range = false;
+                let currencies = [];
+
+                // If it's a different start & end date then we get a range of days with data
+                if(formattedStartDate !== formattedEndDate) {
+                    range = true;
+                    xml.ArrayOfExchangeRatesByDay.ExchangeRatesByDay.forEach(day => {
+                        var currencyDate = day['Date'].text.split('T')[0];
+
+                        day.ExchangeRates.ExchangeRateStateAuthoritiesModel.forEach((element) => {
+                            var data = [];
+                            var dataItem = [];
+                            var currency = {};
+
+                            currency['label'] = element['Oznaka'].text;
+                            dataItem[0] = new Date(currencyDate);
+                            dataItem[1] = parseFloat(element['Sreden'].text);
+
+                            data.push(dataItem);
+                            currency['data'] = data;
+                            currencies.push(currency);
+
+                            console.log(currencies);
+                        });
+                        
+                        // Filter out array
+                        var seen = {};
+                        currencies = currencies.filter(function(entry) {
+                            var previous;
+                        
+                            // Have we seen this label before?
+                            if (seen.hasOwnProperty(entry.label)) {
+                                previous = seen[entry.label];
+                                previous.data.push(entry.data[0]);
+
+                                return false;
+                            }
+                        
+                            if (!Array.isArray(entry.data)) {
+                                entry.data = [entry.data];
+                            }
+                            seen[entry.label] = entry;
+
+                            return true;
+                        });
+                    });
+                } else {
+                    currencies = xml.ArrayOfExchangeRatesByDay.ExchangeRatesByDay.ExchangeRates.ExchangeRateStateAuthoritiesModel;
+                }
 
                 this.setState({
                     isLoaded: true,
-                    items: xml.ArrayOfExchangeRatesByDay.ExchangeRatesByDay.ExchangeRates.ExchangeRateStateAuthoritiesModel
+                    isRange: range,
+                    items: currencies
                 });
             },
             (error) => {
@@ -56,7 +108,7 @@ class ExchangeRatesList extends React.Component {
 
     componentDidMount() {
         // Get data initially for today
-        this.readData(new Date());
+        this.readData(new Date(), new Date());
     }
 
     render() {
@@ -67,16 +119,25 @@ class ExchangeRatesList extends React.Component {
         } else if (!isLoaded) {
             return <div>Loading...</div>;
         } else {
-            return (
-                <div>
-                    <SelectDate selectedDate={this.state.startDate} readData={this.readData} />
-                    <ul>
-                        {items.map(item => (
-                            <ExchangeRate key={item.Valuta.text} currency={item.Oznaka.text} middleValue={item.Sreden.text} />
-                        ))}
-                    </ul>
-                </div>
-            );
+            if(this.state.isRange === false) {
+                return (
+                    <div>
+                        <SelectDate startDate={this.state.startDate} endDate={this.state.endDate} readData={this.readData} />
+                        <ul>
+                            {items.map(item => (
+                                <ExchangeRate key={item.Valuta.text} currency={item.Oznaka.text} middleValue={item.Sreden.text} />
+                            ))}
+                        </ul>
+                    </div>
+                );
+            } else {
+                return (
+                    <div>
+                        <SelectDate startDate={this.state.startDate} endDate={this.state.endDate} readData={this.readData} />
+                        <CurrencyGraph graphData={this.state.items} />
+                    </div>
+                );
+            }
         }
     }
 }
